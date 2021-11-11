@@ -2,12 +2,13 @@
   "name": "iliassync",
   "version": "1.0.0",
   "description": "IliasSync synchronizes your ILIAS courses to the local hard drive.",
-  "main": "index.js",
   "dependencies": {
     "selenium-standalone": "^8.0.4"
   },
   "devDependencies": {},
   "scripts": {
+    "postinstall": "npx selenium-standalone install",
+    "start": "npx selenium-standalone start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
