@@ -30,7 +30,7 @@ class File(AulisElement):
 @dataclass
 class Folder(AulisElement):
     files: Optional[list[File]] = field(default_factory=list)
-    subfolders: Optional[list["Folder"]] = field(default_factory=list)
+    folders: Optional[list["Folder"]] = field(default_factory=list)
 
 
 @dataclass
@@ -46,7 +46,7 @@ class SyncElement(AulisElement):
     # Folders may have subfolder or files.
     folders: Optional[list[Folder]] = field(default_factory=list)
 
-def get_items(driver: WebDriver) -> list[AulisElement]:
+def get_items(driver: WebDriver, url: str) -> list[AulisElement]:
     """
     Gets the AulisElements of a course or folder and returns them as a list.
     
@@ -58,6 +58,9 @@ def get_items(driver: WebDriver) -> list[AulisElement]:
     Learn materials -> src="./Customizing/global/skin/Aulis_Hsb1/images/icon_lm.svg"
     """
     result = []
+
+    driver.get(url)
+    wait = WebDriverWait(driver, 20)
     
     for item in driver.find_elements_by_class_name("ilListItemIcon"):
             # Get the url of the image/icon of the item
@@ -103,6 +106,61 @@ def get_items(driver: WebDriver) -> list[AulisElement]:
                 pass
     return result
 
+def get_course_elements(driver, url, toplevel_element):
+    """ 
+    Recursive function which get all of the courses elements (files, oflder etc) 
+    The toplevel_element is the element which contains the added files and folders.
+    In the recursion call, the toplevel element will be changed to a new sub toplevel element:
+    For example: Item 'Mathematics' has a folder named 'Calculus'. This folder will be added to the 
+    top level element mathematics. Then we go into the calculus folder and see other files and folders.
+    These will be added to calculus, the new topl level element.
+    """
+    # get items of the course and add them to the list
+    for item in get_items(driver, url):
+        # add files
+        if type(item) is File:
+            toplevel_element.files.append(item)
+        # add folders
+        elif type(item) is Folder:
+            toplevel_element.folders.append(item)
+            # For every subitem get in the folder, get the files and folders and add them like above
+            for subitem in get_items(driver, item.url):
+                # TODO Prevent calling a file bug
+                if type(subitem) is Folder:
+                    get_course_elements(driver, subitem.url, subitem)
+        else:
+            pass
+
+
+def login():
+    """
+    Opens the AULIS login page and enters the login credentials which are currently
+    being provided by the env vars.
+    """
+    # Visit the login page
+    driver.get("https://aulis.hs-bremen.de/saml.php?returnTo=")
+
+    # Find the username input field and insert the username
+    username_input_elem = driver.find_element_by_id("username")
+    username_input_elem.clear()
+    username_input_elem.send_keys(os.getenv("AULIS_USERNAME")) # TODO get from config etc.
+
+    # Find the password input field and insert the password
+    password_input_elem = driver.find_element_by_id("password")
+    password_input_elem.clear()
+    password_input_elem.send_keys(os.getenv("AULIS_PASSWORD"))
+
+    # Login via RETURN key
+    password_input_elem.send_keys(Keys.RETURN)
+
+    # wait until we are redirected after the login
+    wait = WebDriverWait(driver, 20)
+    heading = wait.until(EC.visibility_of_element_located((By.ID, "il_mhead_t_focus")))
+    
+    # raise exception if the new page is not the dashboard
+    if "Dashboard" not in heading.get_attribute("text"):
+        raise Exception
+
 
 if __name__ == '__main__':
     # TODO change options based on selected/detected browser
@@ -116,33 +174,8 @@ if __name__ == '__main__':
         desired_capabilities=DesiredCapabilities.FIREFOX.copy()
     )
 
-    driver.get("https://aulis.hs-bremen.de/saml.php?returnTo=")
-    
-    # TODO put into login() etc.
-    username_input_elem = driver.find_element_by_id("username")
-    username_input_elem.clear()
-    username_input_elem.send_keys(os.getenv("AULIS_USERNAME")) # TODO get from config etc.
-
-    password_input_elem = driver.find_element_by_id("password")
-    password_input_elem.clear()
-    password_input_elem.send_keys(os.getenv("AULIS_PASSWORD"))
-    password_input_elem.send_keys(Keys.RETURN)
-
-
-    # Nach dem Einloggen sollte man auf: https://aulis.hs-bremen.de/ilias.php?baseClass=ilDashboardGUI&cmd=jumpToSelectedItems sein
-
-    # class ilDashboardMainContent beinhaltet alle il-item-title -> child <a> hat link
-    
-    # after the login we are being redirected, so we are waiting until the
-    # dashboard is shown
-    wait = WebDriverWait(driver, 20)
-    element = wait.until(EC.visibility_of_element_located((By.ID, "il_mhead_t_focus")))
-
-
-    if element.get_attribute("text") == "Dashboard":
-        print("we are on the dashboard!")
-    else:
-        print(element.get_attribute("text"))
+    # Login the user
+    login()
     
     # get elements which hold the courses
     content = driver.find_element_by_class_name("ilDashboardMainContent")
@@ -159,10 +192,11 @@ if __name__ == '__main__':
     courses = [SyncElement(name=i.get_attribute("text"), description="", url=i.get_attribute("href")) for i in courses]
 
     my_objects = []
-    for i in courses:
-        # Visit the course/group and get the description, files and folders
-        driver.get(i.url)
 
+    # Iterate over all of the courses and get the nested data: description, files and folders
+    for i in courses:
+        # Visit the course/group 
+        driver.get(i.url)
         wait = WebDriverWait(driver, 20)
 
         # Find the description and add it to the current object
@@ -171,25 +205,9 @@ if __name__ == '__main__':
         except:
             i.description = ""
 
-        # get items of the course and add them to the list
-        for item in get_items(driver):
-            # add files
-            if type(item) is File:
-                i.files.append(item)
-            # add folders
-            elif type(item) is Folder:
-                i.folders.append(item)
-            else:
-                pass
+        # Get all the files and folders of the current course
+        get_course_elements(driver, url=i.url, toplevel_element=i)
         
-
-        for folder in i.folders:
-            driver.get(folder.url)
-            wait = WebDriverWait(driver, 20)
-            driver.execute_script("window.history.go(-1)")
-            print("I just opened a folder")
-
-
         # Add the course to the course list
         my_objects.append(i)
 
@@ -197,20 +215,3 @@ if __name__ == '__main__':
         driver.execute_script("window.history.go(-1)")
     
     print(my_objects)
-
-def get_all_folders(driver: WebDriver, folders: list[Folder]) -> list[Folder]:
-    result = []
-    
-    for folder in folders:
-        driver.get(folder.url)
-        wait = WebDriverWait(driver, 20)
-        driver.execute_script("window.history.go(-1)")
-
-        # add files to the current folder <-------<
-        # add folders to the current folder       ^
-        # visit folders                           ^
-        # repeat ---------------------------------^
-
-        # search for files and add them to the folder
-
-
