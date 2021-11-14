@@ -1,16 +1,15 @@
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.webdriver.common.keys import Keys  
-#from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import os
+import os, pickle
 from time import sleep
 from dataclasses import dataclass, field
-from typing import Optional, no_type_check_decorator
+from typing import Optional
 
 @dataclass
 class AulisElement:
@@ -63,47 +62,47 @@ def get_items(driver: WebDriver, url: str) -> list[AulisElement]:
     wait = WebDriverWait(driver, 20)
     
     for item in driver.find_elements_by_class_name("ilListItemIcon"):
-            # Get the url of the image/icon of the item
-            image_url = item.get_attribute("src")
-            # Find the parent element of the item
-            grandparent = item.find_element_by_xpath("./../..")
-            # Find alle titles of the item
-            titles = grandparent.find_elements_by_class_name("il_ContainerItemTitle")
-            # The last nested title is the one we are looking for
-            # It contains the name of the item and also the link/url
-            title = titles[-1]
+        # Get the url of the image/icon of the item
+        image_url = item.get_attribute("src")
+        # Find the parent element of the item
+        grandparent = item.find_element_by_xpath("./../..")
+        # Find alle titles of the item
+        titles = grandparent.find_elements_by_class_name("il_ContainerItemTitle")
+        # The last nested title is the one we are looking for
+        # It contains the name of the item and also the link/url
+        title = titles[-1]
 
-            # Name and url of the item
-            item_name = title.get_attribute("text")
-            item_url = title.get_attribute("href")
+        # Name and url of the item
+        item_name = title.get_attribute("text")
+        item_url = title.get_attribute("href")
 
-            # Skip this element if id doesnt have an url. This most likely means that
-            # the element is protected in AULIS and can't be read.
-            if item_url is None:
-                continue
+        # Skip this element if id doesnt have an url. This most likely means that
+        # the element is protected in AULIS and can't be read.
+        if item_url is None:
+            continue
 
-            try:
-                item_description = grandparent.find_elements_by_class_name("ilListItemSection il_Description")[0].get_attribute("text")
-            except:
-                item_description = ""
+        try:
+            item_description = grandparent.find_elements_by_class_name("ilListItemSection il_Description")[0].get_attribute("text")
+        except:
+            item_description = ""
 
-            # Detect items and convert to objects
-            if "icon_file_inline.svg" in image_url:
-                # get file properties
-                properties = [prop.get_attribute("innerText") for prop in grandparent.find_elements_by_class_name("il_ItemProperty")]
-                # add the File object to the courses files
-                result.append(File(name=item_name, description=item_description, url=item_url, properties=properties))
-                print("file")
-            elif "icon_fold.svg" in image_url:
-                result.append(Folder(name=item_name,description=item_description, url=item_url))
-            elif "icon_webr.svg" in image_url:
-                pass
-            elif "icon_svy.svg" in image_url:
-                pass
-            elif "icon_lm.svg" in image_url:
-                pass
-            else:
-                pass
+        # Detect items and convert to objects
+        if "icon_file_inline.svg" in image_url:
+            # get file properties
+            properties = [prop.get_attribute("innerText") for prop in grandparent.find_elements_by_class_name("il_ItemProperty")]
+            # add the File object to the courses files
+            result.append(File(name=item_name, description=item_description, url=item_url, properties=properties))
+            print("file")
+        elif "icon_fold.svg" in image_url:
+            result.append(Folder(name=item_name,description=item_description, url=item_url))
+        elif "icon_webr.svg" in image_url:
+            pass
+        elif "icon_svy.svg" in image_url:
+            pass
+        elif "icon_lm.svg" in image_url:
+            pass
+        else:
+            pass
     return result
 
 def get_course_elements(driver, url, toplevel_element):
@@ -127,9 +126,36 @@ def get_course_elements(driver, url, toplevel_element):
             for subitem in get_items(driver, item.url):
                 # TODO Prevent calling a file bug
                 if type(subitem) is Folder:
+                    toplevel_element.folders.append(subitem)
                     get_course_elements(driver, subitem.url, subitem)
+                elif type(item) is File:
+                    toplevel_element.files.append(subitem)
+                else:
+                    pass
         else:
             pass
+
+def pickle_courses(courses: list[SyncElement], file_name: str):
+    """ Creates a pickle byte file which holds the courses """
+    # create a pickle file
+    file = open(file_name, "wb")
+    # pickle the list and write it to file
+    pickle.dump(courses, file)
+    # close the file
+    file.close()
+
+def unpickle_courses(file_name: str) -> list[SyncElement]:
+    """ 
+    Loads the pickle byte file and converts the data back to python objects.
+    Returns a list of the courses. 
+    """
+    # read the pickle file
+    file = open(file_name, "rb")
+    # unpickle the dataframe
+    synced_elements = pickle.load(file)
+    # close fthe ile
+    file.close()
+    return synced_elements
 
 
 def login():
@@ -187,6 +213,8 @@ if __name__ == '__main__':
     # convert to set in order to remove duplicates
     courses = list(set(courses))
 
+    # TODO remove courses where the user doesn't want to sync them
+
     # Convert to SyncElements which hold the name and url to the element.
     # The description will be added later
     courses = [SyncElement(name=i.get_attribute("text"), description="", url=i.get_attribute("href")) for i in courses]
@@ -215,3 +243,27 @@ if __name__ == '__main__':
         driver.execute_script("window.history.go(-1)")
     
     print(my_objects)
+
+    old_sync_courses = None
+    # Open the pickled data from the last session
+    try:
+        old_sync_courses = unpickle_courses("oldSyncData")
+    except:
+        print("Something went wrong while unpickleing!")
+    
+    # Save the courses to a pickle file
+    pickle_courses(my_objects, "oldSyncData")
+
+    # compare old pickled objects with the new ones
+    for course in my_objects:
+        if not course in old_sync_courses:
+            print("This course is probably out of data -> needs to be synced")
+        else:
+            print("This course is up to date.")
+    
+    
+
+def _driver_go_back(driver):
+    """ Goes to the last page in history """
+    # ran via JavaScript so it doesn't really refresh the page
+    driver.execute_script("window.history.go(-1)")
