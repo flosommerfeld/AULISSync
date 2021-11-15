@@ -6,21 +6,21 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import os, pickle
+import pickle, traceback
 from elements import AulisElement, SyncElement, File, Folder
 
 
 class SeleniumIliasWrapper:
     # TODO change options based on selected/detected browser
-    firefox_options = Options()  
-    #firefox_options.add_argument("--headless") 
+    firefox_options = Options()
+    # firefox_options.add_argument("--headless")
     # TODO put into Driver class
     driver = webdriver.Remote(
-        command_executor='http://127.0.0.1:4444/wd/hub', # TODO put into config.py
+        command_executor='http://127.0.0.1:4444/wd/hub',
+        # TODO put into config.py
         options=firefox_options,
         desired_capabilities=DesiredCapabilities.FIREFOX.copy()
     )
-
 
     def get_items(self, url: str) -> list[AulisElement]:
         """
@@ -37,14 +37,15 @@ class SeleniumIliasWrapper:
 
         self.driver.get(url)
         wait = WebDriverWait(self.driver, 20)
-        
+
         for item in self.driver.find_elements_by_class_name("ilListItemIcon"):
             # Get the url of the image/icon of the item
             image_url = item.get_attribute("src")
             # Find the parent element of the item
             grandparent = item.find_element_by_xpath("./../..")
             # Find alle titles of the item
-            titles = grandparent.find_elements_by_class_name("il_ContainerItemTitle")
+            titles = grandparent.find_elements_by_class_name(
+                "il_ContainerItemTitle")
             # The last nested title is the one we are looking for
             # It contains the name of the item and also the link/url
             title = titles[-1]
@@ -59,19 +60,25 @@ class SeleniumIliasWrapper:
                 continue
 
             try:
-                item_description = grandparent.find_elements_by_class_name("ilListItemSection il_Description")[0].get_attribute("text")
+                item_description = grandparent.find_elements_by_class_name(
+                    "ilListItemSection il_Description")[0].get_attribute("text")
             except:
                 item_description = ""
 
             # Detect items and convert to objects
             if "icon_file_inline.svg" in image_url:
                 # get file properties
-                properties = [prop.get_attribute("innerText") for prop in grandparent.find_elements_by_class_name("il_ItemProperty")]
+                properties = [prop.get_attribute("innerText") for prop in
+                              grandparent.find_elements_by_class_name(
+                                  "il_ItemProperty")]
                 # add the File object to the courses files
-                result.append(File(name=item_name, description=item_description, url=item_url, properties=properties))
+                result.append(File(name=item_name, description=item_description,
+                                   url=item_url, properties=properties))
                 print("file")
             elif "icon_fold.svg" in image_url:
-                result.append(Folder(name=item_name,description=item_description, url=item_url))
+                result.append(
+                    Folder(name=item_name, description=item_description,
+                           url=item_url))
             elif "icon_webr.svg" in image_url:
                 pass
             elif "icon_svy.svg" in image_url:
@@ -92,7 +99,7 @@ class SeleniumIliasWrapper:
         These will be added to calculus, the new topl level element.
         """
         # get items of the course and add them to the list
-        for item in self.get_items(self.driver, url):
+        for item in self.get_items(url):
             # add files
             if type(item) is File:
                 toplevel_element.files.append(item)
@@ -100,12 +107,12 @@ class SeleniumIliasWrapper:
             elif type(item) is Folder:
                 toplevel_element.folders.append(item)
                 # For every subitem get in the folder, get the files and folders and add them like above
-                for subitem in self.get_items(self.driver, item.url):
+                for subitem in self.get_items(item.url):
                     # TODO Prevent calling a file bug
                     if type(subitem) is Folder:
                         toplevel_element.folders.append(subitem)
-                        self.get_course_elements(self.driver, subitem.url, subitem)
-                    elif type(item) is File:
+                        self.get_course_elements(subitem.url, subitem)
+                    elif type(subitem) is File:
                         toplevel_element.files.append(subitem)
                     else:
                         pass
@@ -123,7 +130,7 @@ class SeleniumIliasWrapper:
         # Find the username input field and insert the username
         username_input_elem = self.driver.find_element_by_id("username")
         username_input_elem.clear()
-        username_input_elem.send_keys(username) # TODO get from config etc.
+        username_input_elem.send_keys(username)  # TODO get from config etc.
 
         # Find the password input field and insert the password
         password_input_elem = self.driver.find_element_by_id("password")
@@ -134,8 +141,9 @@ class SeleniumIliasWrapper:
         password_input_elem.send_keys(Keys.RETURN)
 
         # wait until we are redirected after the login
-        heading = WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, "il_mhead_t_focus")))
-        
+        heading = WebDriverWait(self.driver, 10).until(
+            EC.visibility_of_element_located((By.ID, "il_mhead_t_focus")))
+
         # raise exception if the new page is not the dashboard
         # This can also mean that the authentication was not successful
         if "Dashboard" not in heading.get_attribute("text"):
@@ -162,16 +170,18 @@ class SeleniumIliasWrapper:
         # close fthe ile
         file.close()
         return synced_elements
-            
+
     def synchronize(self):
         """ NOTE: the user needs to be logged into AULIS for the sync to work """
         # get elements which hold the courses
-        content = self.driver.find_element_by_class_name("ilDashboardMainContent")
+        content = self.driver.find_element_by_class_name(
+            "ilDashboardMainContent")
         courseElements = content.find_elements_by_class_name("il-item-title")
-    
+
         # iterate over the courses to get their names etc.
-        courses = [course.find_element_by_tag_name("a") for course in courseElements]
-        
+        courses = [course.find_element_by_tag_name("a") for course in
+                   courseElements]
+
         # convert to set in order to remove duplicates
         courses = list(set(courses))
 
@@ -179,7 +189,8 @@ class SeleniumIliasWrapper:
 
         # Convert to SyncElements which hold the name and url to the element.
         # The description will be added later
-        courses = [SyncElement(name=i.get_attribute("text"), description="", url=i.get_attribute("href")) for i in courses]
+        courses = [SyncElement(name=i.get_attribute("text"), description="",
+                               url=i.get_attribute("href")) for i in courses]
 
         my_objects = []
 
@@ -191,19 +202,23 @@ class SeleniumIliasWrapper:
 
             # Find the description and add it to the current object
             try:
-                i.description = self.driver.find_elements_by_class_name("ilHeaderDesc")[0].get_attribute("text")
+                i.description = \
+                    self.driver.find_elements_by_class_name("ilHeaderDesc")[
+                        0].get_attribute("text")
             except:
                 i.description = ""
 
+            print(i.url)
+
             # Get all the files and folders of the current course
-            self.get_course_elements(self.driver, url=i.url, toplevel_element=i)
-            
+            self.get_course_elements(url=i.url, toplevel_element=i)  # TODO FIX BUG! this breaks the sync
+
             # Add the course to the course list
             my_objects.append(i)
 
             # Go back a page
             self.driver.execute_script("window.history.go(-1)")
-        
+
         print(my_objects)
 
         old_sync_courses = None
@@ -212,17 +227,18 @@ class SeleniumIliasWrapper:
             old_sync_courses = self.unpickle_courses("oldSyncData")
         except:
             print("Something went wrong while unpickleing!")
-        
+
         # Save the courses to a pickle file
         self.pickle_courses(my_objects, "oldSyncData")
 
         # compare old pickled objects with the new ones
         for course in my_objects:
             if not course in old_sync_courses:
-                print("This course is probably out of data -> needs to be synced")
+                print(
+                    "This course is probably out of date -> needs to be synced") # TODO this doesnt seem to be working as expected
             else:
                 print("This course is up to date.")
-        
+
 
 def _driver_go_back(driver):
     """ Goes to the last page in history """
