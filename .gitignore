@@ -1,4 +1,11 @@
 # Node modules
 node_modules/
 
+# Env vars
 .env
+
+# Python specific
+__pycache__
+
+# Pickled/stored data
+localStorage.pickle
