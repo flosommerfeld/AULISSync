@@ -107,16 +107,9 @@ class SeleniumIliasWrapper:
             elif type(item) is Folder:
                 toplevel_element.folders.append(item)
                 # For every subitem get in the folder, get the files and folders and add them like above
-                for subitem in self.get_items(item.url):
-                    # TODO Prevent calling a file bug
-                    if type(subitem) is Folder:
-                        toplevel_element.folders.append(subitem)
-                        self.get_course_elements(subitem.url, subitem)
-                    elif type(subitem) is File:
-                        toplevel_element.files.append(subitem)
-                    else:
-                        pass
+                self.get_course_elements(url=item.url, toplevel_element=item)
             else:
+                # TODO support for weblinks etc.
                 pass
 
     def login(self, username: str, password: str):
