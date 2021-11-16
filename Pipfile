@@ -9,6 +9,8 @@ pysimplegui = "*"
 pystray = "*"
 pillow = "*"
 psgtray = "*"
+requests = "*"
+python-slugify = "*"
 
 [dev-packages]
 

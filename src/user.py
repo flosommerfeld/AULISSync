@@ -47,8 +47,8 @@ class User:
         # Sync AULIS
         try:
             self.synced_elements = _wrapper.synchronize()
-        except:
-            raise
+        except Exception as e:
             self.synced_elements = []
+            print(e.__traceback__)
         finally:
             return self.synced_elements

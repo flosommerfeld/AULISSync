@@ -6,8 +6,24 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import pickle, traceback, requests
+import pickle, unicodedata, requests, os
 from elements import AulisElement, SyncElement, File, Folder
+from slugify import slugify
+
+
+def create_folder(name: str) -> str:
+    """" Returns the name of the folder as a string """
+    try:
+        # create the directory if it is not already existing
+        if name not in os.listdir():
+            os.mkdir(name)
+    except OSError:
+        # slugify the folder name since this is the most common issue when creating folders
+        name = slugify(name)
+        os.mkdir(slugify(name))
+    finally:
+        return name
+    # TODO add exception for other cases
 
 
 class SeleniumIliasWrapper:
@@ -67,8 +83,8 @@ class SeleniumIliasWrapper:
 
             # Detect items and convert to objects
             if "icon_file_inline.svg" in image_url:
-                # get file properties
-                properties = [prop.get_attribute("innerText") for prop in
+                # get file properties and also normalize the string
+                properties = [unicodedata.normalize("NFKD", prop.get_attribute("innerText")) for prop in
                               grandparent.find_elements_by_class_name(
                                   "il_ItemProperty")]
                 # add the File object to the courses files
@@ -89,21 +105,25 @@ class SeleniumIliasWrapper:
                 pass
         return result
 
-    def download_file(self, file: File, path):
+    def download_file(self, file: File): # TODO add path arg
         print("Trying to download: " + file.name)
         print("Url: " + file.url)
         print("Dateiendung: " + file.properties[0])
 
         # Mimic cookies from Selnénium in order to download files with 'requests'
+        # TODO figure out when the cookies will change. Possibly can use this the cookies as an argument
         cookies = requests.cookies.RequestsCookieJar()
         for cookie in self.driver.get_cookies():
-            cookies.set(cookie['name'], cookie['value'], domain=cookie['domain'], path=cookie['path'])
+            cookies.set(cookie["name"], cookie["value"], domain=cookie["domain"], path=cookie["path"])
 
         try:
             # send the get request to download the file
             r = requests.get(file.url, allow_redirects=True, cookies=cookies)
             # save the file TODO save to users path etc.
-            open(file.get_name_with_ending(), 'wb').write(r.content)
+            open(file.get_name_with_ending(), "wb").write(r.content)
+        except FileNotFoundError as e:
+            # slugifying the name should usually fix the issue
+            open(slugify(file.get_name_with_ending()), "wb").write(r.content)
         except Exception as e:
             raise e
 
@@ -122,12 +142,16 @@ class SeleniumIliasWrapper:
             # add files
             if type(item) is File:
                 toplevel_element.files.append(item)
+                # download the file to the current directory
                 self.download_file(item)
             # add folders
             elif type(item) is Folder:
                 toplevel_element.folders.append(item)
+                # create local directory for this aulis folder and move into the directory
+                os.chdir(create_folder(item.name))
                 # For every subitem get in the folder, get the files and folders and add them like above
                 self.get_course_elements(url=item.url, toplevel_element=item)
+                os.chdir("..")
             else:
                 # TODO support for weblinks etc.
                 pass
@@ -225,8 +249,13 @@ class SeleniumIliasWrapper:
 
             print(i.url)
 
+            
+            # create directory for the course/group and cd into directory
+            os.chdir(create_folder(i.name))
             # Get all the files and folders of the current course
             self.get_course_elements(url=i.url, toplevel_element=i)  # TODO FIX BUG! this breaks the sync
+            # leave the directory
+            os.chdir("..")
 
             # Add the course to the course list
             my_objects.append(i)
