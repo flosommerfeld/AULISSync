@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import pickle, traceback
+import pickle, traceback, requests
 from elements import AulisElement, SyncElement, File, Folder
 
 
@@ -89,6 +89,25 @@ class SeleniumIliasWrapper:
                 pass
         return result
 
+    def download_file(self, file: File, path):
+        print("Trying to download: " + file.name)
+        print("Url: " + file.url)
+        print("Dateiendung: " + file.properties[0])
+
+        # Mimic cookies from Selnénium in order to download files with 'requests'
+        cookies = requests.cookies.RequestsCookieJar()
+        for cookie in self.driver.get_cookies():
+            cookies.set(cookie['name'], cookie['value'], domain=cookie['domain'], path=cookie['path'])
+
+        try:
+            # send the get request to download the file
+            r = requests.get(file.url, allow_redirects=True, cookies=cookies)
+            # save the file TODO save to users path etc.
+            open(file.get_name_with_ending(), 'wb').write(r.content)
+        except Exception as e:
+            raise e
+
+
     def get_course_elements(self, url, toplevel_element):
         """ 
         Recursive function which get all of the courses elements (files, oflder etc) 
@@ -103,6 +122,7 @@ class SeleniumIliasWrapper:
             # add files
             if type(item) is File:
                 toplevel_element.files.append(item)
+                self.download_file(item)
             # add folders
             elif type(item) is Folder:
                 toplevel_element.folders.append(item)
@@ -111,6 +131,8 @@ class SeleniumIliasWrapper:
             else:
                 # TODO support for weblinks etc.
                 pass
+
+
 
     def login(self, username: str, password: str):
         """
