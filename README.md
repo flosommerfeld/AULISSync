@@ -91,6 +91,7 @@
 ### Built With
 
 * [Python](https://www.python.org)
+* [PySimpleGui](https://pysimplegui.readthedocs.io/en/latest/)
 * [Selenium](https://www.selenium.dev/)
 
 
@@ -137,7 +138,18 @@ This is an list of things you need to use the software.
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+1. Start the Selenium Standalone Server
+   ```sh
+   npm start
+   ```
+2. Run the Python GUI application
+   ```sh
+   pipenv run python src/__main__.py
+   ```
+   or
+    ```sh
+   python src/__main__.py
+   ```
 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
@@ -148,7 +160,12 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- GUI for authentication and configuration of download paths etc.
+- [x] GUI for authentication
+- [ ] Configuration of download paths
+- [ ] Save user credentials locally
+- [ ] Ask the user what to sync before starting the sync process
+- [ ] Display download information
+- [ ] Modern GUI design with bootstrap buttons converted to base64 strings
 
 
 See the [open issues](https://github.com/flosommerfeld/IliasSync/issues) for a full list of proposed features (and known issues).
