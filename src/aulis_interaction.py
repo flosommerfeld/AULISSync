@@ -14,13 +14,13 @@ from slugify import slugify
 def create_folder(name: str) -> str:
     """" Returns the name of the folder as a string """
     try:
-        # create the directory if it is not already existing
-        if name not in os.listdir():
+        # create the directory if it is doesn't exists yet
+        if not os.path.isdir(name):
             os.mkdir(name)
     except OSError:
         # slugify the folder name since this is the most common issue when creating folders
         name = slugify(name)
-        os.mkdir(slugify(name))
+        os.mkdir(name)
     finally:
         return name
     # TODO add exception for other cases
@@ -142,8 +142,9 @@ class SeleniumIliasWrapper:
             # add files
             if type(item) is File:
                 toplevel_element.files.append(item)
-                # download the file to the current directory
-                self.download_file(item)
+                # download the file to the current directory if it doesn't exist already
+                if not os.path.isfile(item.get_name_with_ending()): # TODO compare file versions. This can be done with pickleing or by simply comparing the last sync time with the time of the updated file ->  pdf   147,0 KB   >>>>11. Nov 2021, 20:01<<<<   Anzahl Seiten: 1  
+                    self.download_file(item)
             # add folders
             elif type(item) is Folder:
                 toplevel_element.folders.append(item)
@@ -155,7 +156,6 @@ class SeleniumIliasWrapper:
             else:
                 # TODO support for weblinks etc.
                 pass
-
 
 
     def login(self, username: str, password: str):
