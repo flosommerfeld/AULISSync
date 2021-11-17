@@ -152,7 +152,7 @@ class SeleniumIliasWrapper:
                 os.chdir(create_folder(item.name))
                 # For every subitem get in the folder, get the files and folders and add them like above
                 self.get_course_elements(url=item.url, toplevel_element=item)
-                os.chdir("..")
+                os.chdir(os.pardir)
             else:
                 # TODO support for weblinks etc.
                 pass
@@ -255,7 +255,7 @@ class SeleniumIliasWrapper:
             # Get all the files and folders of the current course
             self.get_course_elements(url=i.url, toplevel_element=i)  # TODO FIX BUG! this breaks the sync
             # leave the directory
-            os.chdir("..")
+            os.chdir(os.pardir)
 
             # Add the course to the course list
             my_objects.append(i)
