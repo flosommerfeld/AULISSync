@@ -34,7 +34,7 @@ class File(AulisElement):
         return float(self.properties[1])
     
     def get_date_of_last_modification(self) -> datetime:
-        """ Returns the date of the last modification. Converts the AULIS time string to datetime. """"
+        """ Returns the date of the last modification. Converts the AULIS time string to datetime. """
         # see strptime directives https://docs.python.org/2/library/datetime.html#strftime-and-strptime-behavior
         # AULIS uses the abbreviated name for months -> Jun == Juni
         return datetime.strptime(self.properties[2], "%d %b %Y %X").date()
