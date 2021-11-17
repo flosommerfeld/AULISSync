@@ -9,3 +9,4 @@ __pycache__
 
 # Pickled/stored data
 localStorage.pickle
+localData.pickle

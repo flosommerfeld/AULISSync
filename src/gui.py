@@ -2,7 +2,21 @@ import os
 import PySimpleGUI as sg
 from psgtray import SystemTray
 from user import User
+from PIL import Image
+import base64
+from io import BytesIO
+import globals
 
+"""
+def image_to_base64(image: Image):
+    buffer = BytesIO()
+    image.save(buffer, format=image.format)
+    result = base64.b64encode(buffer.getvalue())
+    print(result)
+    return result
+
+app_icon = Image.open(os.path.join(os.path.dirname(__file__), os.pardir, "img", "logo_without_text.png"))
+app_icon = image_to_base64(app_icon)"""
 
 def gui_loop():
     menu = ['', ['Show Window', 'Hide Window', 'Exit']]
@@ -34,10 +48,18 @@ def gui_loop():
     window.FindElement("Logout").Update(disabled=True, visible=False)
     # Disable logout button if not logged in TODO
 
-    tray = SystemTray(menu, single_click_events=False, window=window, tooltip=tooltip, icon=sg.DEFAULT_BASE64_ICON)
+    tray = SystemTray(menu, single_click_events=False, window=window, tooltip=tooltip, icon=sg.EMOJI_BASE64_HAPPY_BIG_SMILE)
     sg.cprint(sg.get_versions())
 
     user = None # TODO
+    print(globals.user)
+    if globals.user:
+        window.FindElement("-USERNAME-").Update(globals.user.username)
+        window.FindElement("-PASSWORD-").Update(globals.user.password_hash)
+        window["Login"].click()
+        sg.cprint(globals.user)
+        print("A user exists!")
+        print("hide login button")
 
     while True:
         event, values = window.read()

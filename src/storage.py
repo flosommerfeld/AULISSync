@@ -1,4 +1,4 @@
-from user import User
+from user import User, Settings
 import pickle
 from elements import SyncElement
 
@@ -9,12 +9,15 @@ class Storage:
 
     @property
     def user(self) -> User:
+        """ Returns the user by loading the pickled user object. """
+        
         # read the pickle file
         file = open(self._pickle_file, "rb")
         # unpickle the dataframe
         user = pickle.load(file)
-        # close fthe ile
+        # close the file
         file.close()
+        
         return user
 
     @user.setter
