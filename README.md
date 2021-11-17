@@ -81,7 +81,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 IliasSync was initially created due to my personal preference of having all the univserity course
-files locally. It was pretty annoying to always visit the AULIS website, type in the credentials everytime, look for the course, download new course files weekly and then not having these files across all my other systems. IliasSync helps to synchronize all of the files which are distributed by your professor via AULIS. 
+files locally. It was pretty annoying to always visit the AULIS website, type in the credentials everytime, look for the course, download new course files weekly and then not having these files across all my other devices. IliasSync helps to synchronize all of the files which are distributed by your professor via AULIS. 
 
 It is easily integrateable with other synchronization services, such as [MEGA](https://mega.nz/sync), [Google Drive](https://www.google.com/intl/de/drive/download/), [Dropbox](https://www.dropbox.com/de/), [Microsoft OneDrive](https://onedrive.live.com/about/): just make IliasSync synchronize your courses into a directory which is being synchronized by one of these services. 
 
