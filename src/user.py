@@ -2,8 +2,18 @@ from elements import SyncElement
 from dataclasses import dataclass
 from typing import Optional
 from aulis_interaction import SeleniumIliasWrapper
+from pathlib import Path
+import datetime
+
 
 _wrapper = SeleniumIliasWrapper()
+
+@dataclass
+class Settings:
+    """ Represents the settings a user can make in the GUI """
+    ELEMENTS_TO_SYNC: Optional[list[SyncElement]] = None
+    SYNC_DESTINATION: Optional[Path] = Path(__file__).parent # use the root project directory as default
+
 
 @dataclass
 class User:
@@ -12,9 +22,12 @@ class User:
     """
     username: str
     password_hash: str
+    settings: Optional[Settings] = None
     synced_elements: Optional[list[SyncElement]] = None
+    # The last time the user has synchronized his AULIS courses
+    last_sync_action: datetime = None
 
-    def update(self, username, password):
+    def update_credentials(self, username, password):
         """ Updates the credentials of the user. Arguments are optional. """
         if username:
             self.username = username
