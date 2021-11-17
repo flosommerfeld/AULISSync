@@ -29,7 +29,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/flosommerfeld/IliasSync">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="img/logo_inkscape.svg" alt="Logo" height="100">
   </a>
 
 <h3 align="center">IliasSync</h3>
