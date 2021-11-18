@@ -4,10 +4,12 @@
   "main": "src/gui/index.jsx",
   "description": "IliasSync synchronizes your ILIAS courses to the local hard drive.",
   "dependencies": {
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
-    "selenium-standalone": "^8.0.4",
-    "shards-react": "^1.0.3"
+    "@emotion/react": "^11.6.0",
+    "@emotion/styled": "^11.6.0",
+    "@mui/material": "^5.1.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "selenium-standalone": "^8.0.4"
   },
   "scripts": {
     "postinstall": "npx selenium-standalone install",
