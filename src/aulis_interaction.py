@@ -44,6 +44,7 @@ class SeleniumIliasWrapper:
         
         The items are identified by their images:
         File -> src="./Customizing/global/skin/Aulis_Hsb1/images/icon_file_inline.svg"
+        Files that are not pdfs i.e. .zip or .txt: src="./Customizing/global/skin/Aulis_Hsb1/images/icon_file.svg"
         Folder -> src="./Customizing/global/skin/Aulis_Hsb1/images/icon_fold.svg"
         Weblink -> src="./Customizing/global/skin/Aulis_Hsb1/images/icon_webr.svg"
         Survey -> src="./Customizing/global/skin/Aulis_Hsb1/images/icon_svy.svg"
@@ -82,7 +83,7 @@ class SeleniumIliasWrapper:
                 item_description = ""
 
             # Detect items and convert to objects
-            if "icon_file_inline.svg" in image_url:
+            if "icon_file_inline.svg" in image_url or "icon_file.svg" in image_url:
                 # get file properties and also normalize the string
                 properties = [unicodedata.normalize("NFKD", prop.get_attribute("innerText")) for prop in
                               grandparent.find_elements_by_class_name(
