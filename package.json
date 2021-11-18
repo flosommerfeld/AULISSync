@@ -1,0 +1,24 @@
+{
+  "name": "iliassync",
+  "version": "1.0.0",
+  "description": "IliasSync synchronizes your ILIAS courses to the local hard drive.",
+  "dependencies": {
+    "selenium-standalone": "^8.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "postinstall": "npx selenium-standalone install",
+    "start": "npx selenium-standalone start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flosommerfeld/IliasSync.git"
+  },
+  "author": "Florian Sommerfeld",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/flosommerfeld/IliasSync/issues"
+  },
+  "homepage": "https://github.com/flosommerfeld/IliasSync#readme"
+}
