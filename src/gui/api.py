@@ -2,8 +2,14 @@ import os
 
 def get_entrypoint():
     """ Returns the entrypoint/main html file of the gui """
-    if os.path.exists(os.path.join(os.path.dirname(__file__), "index.html")):
-        return os.path.join(os.path.dirname(__file__), "index.html")
+    
+    def get_path(path):
+        """ Returns the joined path if it exists. None if it doesnt. """
+        if os.path.exists(os.path.join(os.path.dirname(__file__), path)):
+            return os.path.join(os.path.dirname(__file__), path)
+   
+    index_file = get_path("../../public/dist/index.html")
+    if index_file: return index_file
         
     raise Exception('No index.html found')
 

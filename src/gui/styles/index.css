@@ -1,0 +1,10 @@
+/* Website should fill 100% of the browsers height */
+html {
+    height: 100%;
+}
+
+/* Remove margins so there are no gaps in the frontend */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
