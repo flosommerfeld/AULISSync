@@ -64,6 +64,8 @@ module.exports = {
         // copy our static assets to the public folder so that they are available for our dev server 
         { from: path.resolve(__dirname, "src/gui/styles"), to: path.resolve(__dirname, "public/dist/styles") },
         { from: path.resolve(__dirname, "src/gui/index.html"), to: path.resolve(__dirname, "public/dist/index.html"), toType: "file" },
+        { from: path.resolve(__dirname, "src/gui/routes/login.html"), to: path.resolve(__dirname, "public/dist/login/index.html"), toType: "file" },
+        { from: path.resolve(__dirname, "src/gui/routes/settings.html"), to: path.resolve(__dirname, "public/dist/settings/index.html"), toType: "file" },
       ]
     }),
   ],

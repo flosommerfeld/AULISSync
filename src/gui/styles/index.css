@@ -8,3 +8,8 @@ html, body {
     margin: 0 !important;
     padding: 0 !important;
 }
+
+/* FUll height for the app */
+html, body, #app {
+    height: 100%;
+}
