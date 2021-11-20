@@ -167,14 +167,35 @@ function LoadingButton(props) {
 export function Dashboard() {
 
   const [username, setUsername] = React.useState("");
+  const [courses, setCourses] = React.useState([]);
 
-  // Wait for pywebview to be ready before grabbing the username
-  window.addEventListener('pywebviewready', getUsername);
+  // Wait for pywebview to be ready before using the Python API
+  window.addEventListener('pywebviewready', getData);
 
-  function getUsername() {
+  /**
+   * Gets the needed data (login status, courses, username) by calling the Python API
+   */
+  function getData() {
+
+    // 1. Verify that the user is logged into AULIS
+    window.pywebview.api.isUserLoggedIntoAulis().then((loggedIn) => {
+      if(!loggedIn){
+        alert("not logged in");
+        return window.pywebview.api.loginAuthenticatedUserToAulis();
+      }
+    // 2. Grab all of the AULIS courses which are shown on the AULIS website 
+    }).then(() => { 
+      alert("trying to get courses");
+      window.pywebview.api.getCourses().then((response) => {
+        setCourses(response.join('').split('')); // TODO: fix this! somehow throws an error
+      }).catch((response) => {alert(response);} );
+    });
+
+    // Get the username
     window.pywebview.api.getUsername().then((response) => {
       setUsername(response);
     });
+
   }
 
   return (
@@ -185,7 +206,7 @@ export function Dashboard() {
             <MenuList />
           </Grid>
           <Grid item xl={10} lg={10} md={8} xs={7}>
-            <CheckboxListSecondary></CheckboxListSecondary>
+            <CourseList courses={courses}></CourseList>
             <Button onClick={handleButton} variant="contained">Get list of courses</Button>
           </Grid>
           <FloatingSyncButton />
@@ -196,7 +217,9 @@ export function Dashboard() {
 
 export function handleButton() {
   window.pywebview.api.getCourses().then((response) => {
-    // TODO fix this. Seems like it is not being executed
+    alert(response);
+  }).catch((response) => {
+    alert(response); // not called.
   });
 }
 
@@ -277,7 +300,8 @@ export function MenuList() {
 }
 
 
-export function CheckboxListSecondary() {
+export function CourseList(props) {
+  const {courses} = props; 
   const [checked, setChecked] = React.useState([1]);
 
   const handleToggle = (value) => () => {
@@ -295,27 +319,24 @@ export function CheckboxListSecondary() {
 
   return (
     <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-      {[0, 1, 2, 3].map((value) => {
-        const labelId = `checkbox-list-secondary-label-${value}`;
+      {courses.map((courseName) => {
+        const labelId = `checkbox-list-secondary-label-${courseName}`;
         return (
           <ListItem
-            key={value}
+            key={courseName}
             disablePadding
           >
             <ListItemButton>
             <Checkbox
                 sx={{ marginRight: 3 }}
-                onChange={handleToggle(value)}
-                checked={checked.indexOf(value) !== -1}
+                onChange={handleToggle(courseName)}
+                checked={checked.indexOf(courseName) !== -1}
                 inputProps={{ 'aria-labelledby': labelId }}
               />
               <ListItemAvatar>
-                <Avatar
-                  alt={`Avatar n°${value + 1}`}
-                  src={`/static/images/avatar/${value + 1}.jpg`}
-                />
+                <Avatar>{courseName.substring(0,1)}</Avatar>
               </ListItemAvatar>
-              <ListItemText id={labelId} primary={`Line item ${value + 1}`} />
+              <ListItemText id={labelId} primary={courseName} />
             </ListItemButton>
           </ListItem>
         );

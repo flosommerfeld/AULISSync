@@ -3,6 +3,7 @@ from user import User
 from storage import Storage
 
 storage = Storage()
+_recent_selenium_aulis_login = False
 
 def get_entrypoint():
     """ Returns the entrypoint/main html file of the gui """
@@ -18,10 +19,11 @@ def get_entrypoint():
     raise Exception('No index.html found')
 
 
+
 class Api():
     """ Python API which is callable from JavaScript """
     
-    def getCourses():
+    def getCourses(self):
         """ Returns a list of all course names. This will trigger Selenium to analyze the present courses. """
         return [str(course.name) for course in storage.user.get_courses()] # TODO is it even possible send str lists to js?
 
@@ -30,15 +32,22 @@ class Api():
         """ Triggers the synchronization of the users courses """
         storage.user.synchronize()
 
-    def loginUser(self, username, password):
+    def loginUser(self, username=None, password=None):
         """ Creates a new temporary user instance and tries to login via selenium. If the login was successful the global user will be updated """
         if User(username, password).login():
             # update credentials of the global user if the login was successful
             # the global user will be saved via the storage
             storage.user = User(username, password, logged_in=True)
+            # toggle the login flag
+            _recent_selenium_aulis_login = True
             return True
         
         return False
+
+    def loginAuthenticatedUserToAulis(self):
+        """ Logs in the current user into AULIS via Selenium """
+        # NOTE: by using the stored credentials we can login without knowing the password in the gui
+        return storage.user.login()
 
     def logoutUser(self):
         """ Logs out the user by setting the user instance to None """
@@ -47,6 +56,10 @@ class Api():
     def isUserLoggedIn(self):
         """ Checks whether the stored user has successfully logged in the last time and return a bool """
         return storage.user.logged_in
+    
+    def isUserLoggedIntoAulis(self):
+        """ Returns true if the user has recently signed into AULIS by clicking the login button on the gui """
+        return _recent_selenium_aulis_login
     
     def getUsername(self):
         """ Returns the username of the currently logged in user """

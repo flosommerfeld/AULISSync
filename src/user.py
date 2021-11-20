@@ -69,6 +69,6 @@ class User:
         finally:
             return self.synced_elements
     
-    def get_courses() -> list[SyncElement]:
+    def get_courses(self) -> list[SyncElement]:
         # TODO maybe set the syncedelements as well?
         return _wrapper.get_list_of_courses()
