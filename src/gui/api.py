@@ -1,7 +1,8 @@
 import os
 from user import User
-from globals import get_current_user
+from storage import Storage
 
+storage = Storage()
 
 def get_entrypoint():
     """ Returns the entrypoint/main html file of the gui """
@@ -28,15 +29,15 @@ class Api():
         if User(username, password).login():
             # update credentials of the global user if the login was successful
             # the global user will be saved via the storage
-            get_current_user().update_credentials(username, password)
+            storage.user = User(username, password, logged_in=True)
             return True
         
         return False
 
     def isUserLoggedIn(self):
         """ Checks whether the stored user has successfully logged in the last time and return a bool """
-        return get_current_user().logged_in
+        return storage.user.logged_in
     
     def getUsername(self):
         """ Returns the username of the currently logged in user """
-        return get_current_user().username
+        return storage.user.username

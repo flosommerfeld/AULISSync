@@ -49,7 +49,7 @@ const App = function() {
 export function handleLoggedInUser() {
   // Display the Dashboard if there is a logged in user
   window.pywebview.api.isUserLoggedIn().then((response) => {
-    if(response.message){
+    if(response){
       return <Dashboard /> 
     }
   });
@@ -168,7 +168,7 @@ export function Dashboard() {
 
   function getUsername() {
     window.pywebview.api.getUsername().then((response) => {
-      setUsername(response.message);
+      setUsername(response);
     });
   }
 
@@ -223,7 +223,7 @@ export default function ButtonAppBar(props) {
             AULISSync
           </Typography>
           <Button component={Link} to="/login" color="inherit">Logout</Button>
-          <Avatar sx={{ marginLeft: 2}}>{username}</Avatar>
+          <Avatar sx={{ marginLeft: 2}}>{username.substring(0,2)}</Avatar>
         </Toolbar>
       </AppBar>
 
