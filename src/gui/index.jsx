@@ -48,8 +48,8 @@ const App = function() {
 
 export function handleLoggedInUser() {
   // Display the Dashboard if there is a logged in user
-  window.pywebview.api.isUserLoggedIn().then((loggedIn) => {
-    if(loggedIn){
+  window.pywebview.api.isUserLoggedIn().then((response) => {
+    if(response.message){
       return <Dashboard /> 
     }
   });
@@ -160,16 +160,27 @@ function LoadingButton(props) {
 }
 
 export function Dashboard() {
+
+  const [username, setUsername] = React.useState("");
+
+  // Wait for pywebview to be ready before grabbing the username
+  window.addEventListener('pywebviewready', getUsername);
+
+  function getUsername() {
+    window.pywebview.api.getUsername().then((response) => {
+      setUsername(response.message);
+    });
+  }
+
   return (
     <div style={{height: "100vh"}} >
-      <ButtonAppBar/>
+      <ButtonAppBar username={username}/>
       <Grid container spacing={0} height={'calc(100vh - 64px)'}>
           <Grid item xl={2} lg={2} md={4} xs={5} sx={{ borderRight: 1, borderRightColor: "rgba(0, 0, 0, 0.12)" }}>
             <MenuList />
           </Grid>
           <Grid item xl={10} lg={10} md={8} xs={7}>
             <CheckboxListSecondary></CheckboxListSecondary>
-            <Link to="/login"><Button onClick={handleButton} variant="contained">Hello World</Button></Link>
           </Grid>
           <FloatingSyncButton />
         </Grid>
@@ -192,7 +203,9 @@ export function FloatingSyncButton() {
   );
 }
 
-export default function ButtonAppBar() {
+export default function ButtonAppBar(props) {
+  const { username } = props;
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -210,7 +223,7 @@ export default function ButtonAppBar() {
             AULISSync
           </Typography>
           <Button component={Link} to="/login" color="inherit">Logout</Button>
-          <Avatar sx={{ marginLeft: 2}}>OP</Avatar>
+          <Avatar sx={{ marginLeft: 2}}>{username}</Avatar>
         </Toolbar>
       </AppBar>
 

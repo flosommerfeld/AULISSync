@@ -28,7 +28,7 @@ class Api():
         if User(username, password).login():
             # update credentials of the global user if the login was successful
             # the global user will be saved via the storage
-            get_current_user().update_credentials(username, password) 
+            get_current_user().update_credentials(username, password)
             return True
         
         return False
@@ -36,3 +36,7 @@ class Api():
     def isUserLoggedIn(self):
         """ Checks whether the stored user has successfully logged in the last time and return a bool """
         return get_current_user().logged_in
+    
+    def getUsername(self):
+        """ Returns the username of the currently logged in user """
+        return get_current_user().username
