@@ -21,8 +21,9 @@ def get_entrypoint():
 class Api():
     """ Python API which is callable from JavaScript """
     
-    def handleButton(self):
-        print("The button in the frontend was clicked!")
+    def synchronizeCourses(self):
+        """ Triggers the synchronization of the users courses """
+        storage.user.synchronize()
 
     def loginUser(self, username, password):
         """ Creates a new temporary user instance and tries to login via selenium. If the login was successful the global user will be updated """
@@ -33,6 +34,10 @@ class Api():
             return True
         
         return False
+
+    def logoutUser(self):
+        """ Logs out the user by setting the user instance to None """
+        storage.user = None
 
     def isUserLoggedIn(self):
         """ Checks whether the stored user has successfully logged in the last time and return a bool """

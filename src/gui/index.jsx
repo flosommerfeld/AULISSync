@@ -54,8 +54,13 @@ export function handleLoggedInUser() {
     }
   });
 }
+export function handleLogout() {
+  window.pywebview.api.logoutUser();
+}
 
 export function Login() {
+  // logs out the user when visiting the login page
+  window.pywebview.api.logoutUser();
 
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -196,11 +201,16 @@ export function FloatingSyncButton() {
           bottom: (theme) => theme.spacing(4),
           right: (theme) => theme.spacing(4)
         }}
+        onClick={handleSyncButton}
       >
         <SyncIcon sx={{ mr: 1 }} />
         Synchronize
       </Fab>
   );
+}
+
+export function handleSyncButton() {
+  window.pywebview.api.synchronizeCourses();
 }
 
 export default function ButtonAppBar(props) {
@@ -226,12 +236,10 @@ export default function ButtonAppBar(props) {
           <Avatar sx={{ marginLeft: 2}}>{username.substring(0,2)}</Avatar>
         </Toolbar>
       </AppBar>
-
-     
-
     </Box>
   );
 }
+
 
 
 export function MenuList() {
