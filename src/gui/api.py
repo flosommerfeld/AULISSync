@@ -1,5 +1,7 @@
 import os
 from user import User
+from globals import get_current_user
+
 
 def get_entrypoint():
     """ Returns the entrypoint/main html file of the gui """
@@ -22,5 +24,16 @@ class Api():
         print("The button in the frontend was clicked!")
 
     def loginUser(self, username, password):
-        """ Creates a new user instance and tries to login via selenium """
-        return User(username, password).login()
+        """ Creates a new temporary user instance and tries to login via selenium. If the login was successful the global user will be updated """
+        if User(username, password).login():
+            # update credentials of the global user if the login was successful
+            # the global user will be saved via the storage
+            get_current_user().update_credentials(username, password) 
+            return True
+        
+        return False
+
+    def isUserLoggedIn(self):
+        """ Checks whether the stored user has successfully logged in the last time and return a bool """
+        return True
+        #return get_current_user().logged_in

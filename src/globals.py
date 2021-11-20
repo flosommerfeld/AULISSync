@@ -14,3 +14,6 @@ def load_saved_data():
     except Exception:
         # if the user couldn't be read, create a new one
         user = storage.user = User("", "", Settings())
+
+def get_current_user() -> User:
+    return user

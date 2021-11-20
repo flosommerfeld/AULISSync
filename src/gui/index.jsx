@@ -32,8 +32,9 @@ import {
 } from "react-router-dom";
 const App = function() {
 
-  // if (jsapi.user.loggedin) return  <Dashboard> etc.
-
+  // Wait for pywebview to be ready before checking if the user is logged in
+  window.addEventListener('pywebviewready', handleLoggedInUser);
+  
   return (
     <Router>
       <Routes>
@@ -45,6 +46,15 @@ const App = function() {
   );
 }
 
+export function handleLoggedInUser() {
+  // Display the Dashboard if there is a logged in user
+  window.pywebview.api.isUserLoggedIn().then((loggedIn) => {
+    if(loggedIn){
+      return <Dashboard /> 
+    }
+  });
+}
+
 export function Login() {
 
   const [username, setUsername] = React.useState("");
@@ -54,6 +64,7 @@ export function Login() {
   const onPasswordChange = (e) => setPassword(e.target.value);
 
   const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(false);
 
   // history instance used for redirecting after a successful login
   const navigate = useNavigate();
@@ -67,6 +78,9 @@ export function Login() {
         navigate("/settings");
       }
       else{
+        // activate the error state which will change the Textfields
+        setError(true);
+        // stop the loading animation
         setLoading(false);
       }
     });
@@ -92,10 +106,11 @@ export function Login() {
             }}
           >
             <Typography component="h1" variant="h5">
-              Login with your AULIS-/RZhsb-Account
+              Login with your AULIS/RZhsb account
             </Typography>
           </Box>
           <TextField
+              error={error}
               onChange={onUsernameChange}
               margin="normal"
               required
@@ -107,6 +122,8 @@ export function Login() {
               autoFocus
             />
             <TextField
+              error={error}
+              helperText={error ? "Please enter a correct username and password." : ""}
               onChange={onPasswordChange}
               margin="normal"
               required
@@ -192,7 +209,7 @@ export default function ButtonAppBar() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             AULISSync
           </Typography>
-          <Button color="inherit">Logout</Button>
+          <Button component={Link} to="/login" color="inherit">Logout</Button>
           <Avatar sx={{ marginLeft: 2}}>OP</Avatar>
         </Toolbar>
       </AppBar>
