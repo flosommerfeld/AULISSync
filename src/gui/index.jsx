@@ -21,13 +21,15 @@ import Settings from '@mui/icons-material/Settings';
 import SyncIcon from '@mui/icons-material/Sync';
 import ClassIcon from '@mui/icons-material/Class';
 import TextField from '@mui/material/TextField';
+import CircularProgress from '@mui/material/CircularProgress';
+import { blue } from '@mui/material/colors';
 import {
   HashRouter as Router,
   Routes,
   Route,
-  Link
+  Link,
+  useNavigate
 } from "react-router-dom";
-
 const App = function() {
 
   // if (jsapi.user.loggedin) return  <Dashboard> etc.
@@ -44,6 +46,32 @@ const App = function() {
 }
 
 export function Login() {
+
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  const onUsernameChange = (e) => setUsername(e.target.value);
+  const onPasswordChange = (e) => setPassword(e.target.value);
+
+  const [loading, setLoading] = React.useState(false);
+
+  // history instance used for redirecting after a successful login
+  const navigate = useNavigate();
+
+  // use the python api to log in the user
+  const handleSubmit = () => {
+    setLoading(true);
+    window.pywebview.api.loginUser(username, password).then((loginSuccess) => {
+      // only redirect if the login was successful
+      if(loginSuccess){
+        navigate("/settings");
+      }
+      else{
+        setLoading(false);
+      }
+    });
+  }
+
   return(
     <div style={{height: "100vh"}} >
       <Grid
@@ -64,20 +92,22 @@ export function Login() {
             }}
           >
             <Typography component="h1" variant="h5">
-              Login
+              Login with your AULIS-/RZhsb-Account
             </Typography>
           </Box>
           <TextField
+              onChange={onUsernameChange}
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              id="username"
+              label="Username"
+              name="username"
+              autoComplete="username"
               autoFocus
             />
             <TextField
+              onChange={onPasswordChange}
               margin="normal"
               required
               fullWidth
@@ -87,18 +117,29 @@ export function Login() {
               id="password"
               autoComplete="current-password"
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Login
-            </Button>
+            <LoadingButton
+              onClick={handleSubmit}
+              loading={loading}
+              text="Login"
+            />
         </Grid>      
       </Grid>
     </div>
   )
+}
+
+function LoadingButton(props) {
+  const { onClick, loading, text } = props;
+  return (
+    <Button variant="contained" onClick={onClick} disabled={loading} type="submit"
+      fullWidth
+      variant="contained"
+      sx={{ mt: 3, mb: 2 }}
+    >
+      {loading && <CircularProgress size={24} sx={{color: blue[500]}}/>}
+      {!loading && text}
+    </Button>
+  );
 }
 
 export function Dashboard() {

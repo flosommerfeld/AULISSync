@@ -1,4 +1,5 @@
 import os
+from user import User
 
 def get_entrypoint():
     """ Returns the entrypoint/main html file of the gui """
@@ -19,3 +20,7 @@ class Api():
     
     def handleButton(self):
         print("The button in the frontend was clicked!")
+
+    def loginUser(self, username, password):
+        """ Creates a new user instance and tries to login via selenium """
+        return User(username, password).login()
