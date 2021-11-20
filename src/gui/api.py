@@ -35,5 +35,4 @@ class Api():
 
     def isUserLoggedIn(self):
         """ Checks whether the stored user has successfully logged in the last time and return a bool """
-        return True
-        #return get_current_user().logged_in
+        return get_current_user().logged_in
