@@ -186,11 +186,18 @@ export function Dashboard() {
           </Grid>
           <Grid item xl={10} lg={10} md={8} xs={7}>
             <CheckboxListSecondary></CheckboxListSecondary>
+            <Button onClick={handleButton} variant="contained">Get list of courses</Button>
           </Grid>
           <FloatingSyncButton />
         </Grid>
       </div>
   )
+}
+
+export function handleButton() {
+  window.pywebview.api.getCourses().then((response) => {
+    // TODO fix this. Seems like it is not being executed
+  });
 }
 
 export function FloatingSyncButton() {
@@ -315,10 +322,6 @@ export function CheckboxListSecondary() {
       })}
     </List>
   );
-}
-
-function handleButton() {
-  window.pywebview.api.handleButton()
 }
 
 const element = document.getElementById('app')

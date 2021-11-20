@@ -211,26 +211,11 @@ class SeleniumIliasWrapper:
         file.close()
         return synced_elements
 
+
+
     def synchronize(self):
         """ NOTE: the user needs to be logged into AULIS for the sync to work """
-        # get elements which hold the courses
-        content = self.driver.find_element_by_class_name(
-            "ilDashboardMainContent")
-        courseElements = content.find_elements_by_class_name("il-item-title")
-
-        # iterate over the courses to get their names etc.
-        courses = [course.find_element_by_tag_name("a") for course in
-                   courseElements]
-
-        # convert to set in order to remove duplicates
-        courses = list(set(courses))
-
-        # TODO remove courses where the user doesn't want to sync them
-
-        # Convert to SyncElements which hold the name and url to the element.
-        # The description will be added later
-        courses = [SyncElement(name=i.get_attribute("text"), description="",
-                               url=i.get_attribute("href")) for i in courses]
+        courses = self.get_list_of_courses()
 
         my_objects = []
 
@@ -262,7 +247,7 @@ class SeleniumIliasWrapper:
             my_objects.append(i)
 
             # Go back a page
-            self.driver.execute_script("window.history.go(-1)")
+            _driver_go_back()
 
         print(my_objects)
 
@@ -283,6 +268,29 @@ class SeleniumIliasWrapper:
                     "This course is probably out of date -> needs to be synced") # TODO this doesnt seem to be working as expected
             else:
                 print("This course is up to date.")
+
+    def get_list_of_courses(self) -> list[SyncElement]:
+            # Visit the login page
+            self.driver.get("https://aulis.hs-bremen.de")
+
+            # get elements which hold the courses
+            content = self.driver.find_element_by_class_name(
+                "ilDashboardMainContent")
+            courseElements = content.find_elements_by_class_name("il-item-title")
+
+            # iterate over the courses to get their names etc.
+            courses = [course.find_element_by_tag_name("a") for course in
+                    courseElements]
+
+            # convert to set in order to remove duplicates
+            courses = list(set(courses))
+
+            # TODO remove courses where the user doesn't want to sync them
+
+            # Convert to SyncElements which hold the name and url to the element.
+            # The description will be added later
+            return [SyncElement(name=i.get_attribute("text"), description="",
+                                url=i.get_attribute("href")) for i in courses]
 
 
 def _driver_go_back(driver):
