@@ -3,7 +3,7 @@ from user import User
 from storage import Storage
 
 storage = Storage()
-_recent_selenium_aulis_login = False
+
 
 def get_entrypoint():
     """ Returns the entrypoint/main html file of the gui """
@@ -22,6 +22,8 @@ def get_entrypoint():
 
 class Api():
     """ Python API which is callable from JavaScript """
+    def __init__(self):
+        self.recent_selenium_aulis_login = False
     
     def getCourses(self):
         """ Returns a list of all course names. This will trigger Selenium to analyze the present courses. """
@@ -39,7 +41,7 @@ class Api():
             # the global user will be saved via the storage
             storage.user = User(username, password, logged_in=True)
             # toggle the login flag
-            _recent_selenium_aulis_login = True
+            self.recent_selenium_aulis_login
             return True
         
         return False
@@ -55,11 +57,17 @@ class Api():
 
     def isUserLoggedIn(self):
         """ Checks whether the stored user has successfully logged in the last time and return a bool """
-        return storage.user.logged_in
+        try:
+            # If there is a saved user then return the login flag
+            if(storage.user):
+                return storage.user.logged_in
+        except:
+            # return False if a saved user was not found
+            return False
     
     def isUserLoggedIntoAulis(self):
         """ Returns true if the user has recently signed into AULIS by clicking the login button on the gui """
-        return _recent_selenium_aulis_login
+        return self.recent_selenium_aulis_login
     
     def getUsername(self):
         """ Returns the username of the currently logged in user """

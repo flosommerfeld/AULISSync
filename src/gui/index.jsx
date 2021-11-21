@@ -30,37 +30,47 @@ import {
   Link,
   useNavigate
 } from "react-router-dom";
-const App = function() {
+export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false); 
+
+  function handleLoggedInUser() {
+    // Ask the Python API if there is a logged in user
+    window.pywebview.api.isUserLoggedIn().then((response) => {
+      // Set state to true if the user is logged in
+      if(response){
+        setIsLoggedIn(true);
+      }
+    });
+  }
 
   // Wait for pywebview to be ready before checking if the user is logged in
   window.addEventListener('pywebviewready', handleLoggedInUser);
+
   
   return (
     <Router>
       <Routes>
         <Route path="/login" caseSensitive={false} element={<Login />} />
         <Route path="/settings" caseSensitive={false} element={<Dashboard />} />
-        <Route path="/" caseSensitive={false} element={<Dashboard />} />
+        { isLoggedIn ?
+          <Route path="/" caseSensitive={false} element={<Dashboard isLoggedIn={isLoggedIn}/>} />
+          :  
+          <Route path="/" caseSensitive={false} element={<Login />} /> 
+        }
+       
       </Routes>
     </Router>
   );
 }
 
-export function handleLoggedInUser() {
-  // Display the Dashboard if there is a logged in user
-  window.pywebview.api.isUserLoggedIn().then((response) => {
-    if(response){
-      return <Dashboard /> 
-    }
-  });
-}
+
 export function handleLogout() {
   window.pywebview.api.logoutUser();
 }
 
 export function Login() {
   // logs out the user when visiting the login page
-  window.pywebview.api.logoutUser();
+  // TODO window.pywebview.api.logoutUser();
 
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -150,6 +160,9 @@ export function Login() {
   )
 }
 
+/**
+ * Button that is able to display a circular loader when loading is true
+ */
 function LoadingButton(props) {
   const { onClick, loading, text } = props;
   return (
@@ -164,19 +177,24 @@ function LoadingButton(props) {
   );
 }
 
-export function Dashboard() {
+export function Dashboard(props) {
+  const {isLoggedIn} = props;
 
   const [username, setUsername] = React.useState("");
   const [courses, setCourses] = React.useState([]);
 
-  // Wait for pywebview to be ready before using the Python API
-  window.addEventListener('pywebviewready', getData);
+  // get Data from Python API
+  // Wait for pywebview to be ready before checking if the user is logged in
+  if(isLoggedIn){
+    getData();
+  }
+  
 
   /**
    * Gets the needed data (login status, courses, username) by calling the Python API
    */
   function getData() {
-
+    alert("READY");
     // 1. Verify that the user is logged into AULIS
     window.pywebview.api.isUserLoggedIntoAulis().then((loggedIn) => {
       if(!loggedIn){
@@ -243,7 +261,7 @@ export function handleSyncButton() {
   window.pywebview.api.synchronizeCourses();
 }
 
-export default function ButtonAppBar(props) {
+export function ButtonAppBar(props) {
   const { username } = props;
 
   return (
