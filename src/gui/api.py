@@ -29,7 +29,6 @@ class Api():
         """ Returns a list of all course names. This will trigger Selenium to analyze the present courses. """
         return [str(course.name) for course in storage.user.get_courses()] # TODO is it even possible send str lists to js?
 
-
     def synchronizeCourses(self):
         """ Triggers the synchronization of the users courses """
         storage.user.synchronize()

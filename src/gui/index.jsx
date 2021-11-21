@@ -184,11 +184,11 @@ export function Dashboard(props) {
   const [courses, setCourses] = React.useState([]);
 
   // get Data from Python API
-  // Wait for pywebview to be ready before checking if the user is logged in
-  if(isLoggedIn){
-    getData();
-  }
-  
+  React.useEffect(()=>{
+    if(isLoggedIn){
+      getData();
+    }
+  }, []); // do only once
 
   /**
    * Gets the needed data (login status, courses, username) by calling the Python API
@@ -198,14 +198,18 @@ export function Dashboard(props) {
     // 1. Verify that the user is logged into AULIS
     window.pywebview.api.isUserLoggedIntoAulis().then((loggedIn) => {
       if(!loggedIn){
-        alert("not logged in");
+        alert("not logged in Selenium AULIS");
         return window.pywebview.api.loginAuthenticatedUserToAulis();
       }
     // 2. Grab all of the AULIS courses which are shown on the AULIS website 
     }).then(() => { 
       alert("trying to get courses");
       window.pywebview.api.getCourses().then((response) => {
-        setCourses(response.join('').split('')); // TODO: fix this! somehow throws an error
+        response.forEach((item) => { item = String(item) })
+        document.getElementById("demo").innerHTML = response;
+        
+        setCourses(response); // TODO: fix this! somehow throws an error
+        
       }).catch((response) => {alert(response);} );
     });
 
@@ -224,8 +228,7 @@ export function Dashboard(props) {
             <MenuList />
           </Grid>
           <Grid item xl={10} lg={10} md={8} xs={7}>
-            <CourseList courses={courses}></CourseList>
-            <Button onClick={handleButton} variant="contained">Get list of courses</Button>
+            <CourseList courses={courses} />
           </Grid>
           <FloatingSyncButton />
         </Grid>
@@ -233,13 +236,6 @@ export function Dashboard(props) {
   )
 }
 
-export function handleButton() {
-  window.pywebview.api.getCourses().then((response) => {
-    alert(response);
-  }).catch((response) => {
-    alert(response); // not called.
-  });
-}
 
 export function FloatingSyncButton() {
   return (
@@ -319,7 +315,8 @@ export function MenuList() {
 
 
 export function CourseList(props) {
-  const {courses} = props; 
+  const {courses} = props;
+  alert(courses.length); 
   const [checked, setChecked] = React.useState([1]);
 
   const handleToggle = (value) => () => {
@@ -337,7 +334,7 @@ export function CourseList(props) {
 
   return (
     <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-      {courses.map((courseName) => {
+      {courses.map(function(courseName, i) {
         const labelId = `checkbox-list-secondary-label-${courseName}`;
         return (
           <ListItem
@@ -352,7 +349,7 @@ export function CourseList(props) {
                 inputProps={{ 'aria-labelledby': labelId }}
               />
               <ListItemAvatar>
-                <Avatar>{courseName.substring(0,1)}</Avatar>
+                <Avatar>{courseName}</Avatar>
               </ListItemAvatar>
               <ListItemText id={labelId} primary={courseName} />
             </ListItemButton>
