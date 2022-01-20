@@ -32,10 +32,10 @@
     <img src="img/logo_inkscape.svg" alt="Logo" height="100">
   </a>
 
-<h3 align="center">IliasSync</h3>
+<h3 align="center">AULISSync</h3>
 
   <p align="center">
-    IliasSync synchronizes your ILIAS courses to the local hard drive. 
+    AULISSync synchronizes your ILIAS courses to the local hard drive. 
     <br />
     <a href="https://github.com/flosommerfeld/IliasSync"><strong>Explore the docs »</strong></a>
     <br />
@@ -80,13 +80,19 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-IliasSync was initially created due to my personal preference of having all the univserity course
-files locally. It was pretty annoying to always visit the AULIS website, type in the credentials everytime, look for the course, download new course files weekly and then not having these files across all my other devices. IliasSync helps to synchronize all of the files which are distributed by your professor via AULIS. 
+AULISSync was initially created due to my personal preference of having all the univserity course
+files locally. It was pretty annoying to always visit the AULIS website, type in the credentials everytime, look for the course, download new course files weekly and then not having these files across all my other devices. AULISSync helps to synchronize all of the files which are distributed by your professor via AULIS. 
 
-It is easily integrateable with other synchronization services, such as [MEGA](https://mega.nz/sync), [Google Drive](https://www.google.com/intl/de/drive/download/), [Dropbox](https://www.dropbox.com/de/), [Microsoft OneDrive](https://onedrive.live.com/about/): just make IliasSync synchronize your courses into a directory which is being synchronized by one of these services. 
+It is easily integrateable with other synchronization services, such as [MEGA](https://mega.nz/sync), [Google Drive](https://www.google.com/intl/de/drive/download/), [Dropbox](https://www.dropbox.com/de/), [Microsoft OneDrive](https://onedrive.live.com/about/): just make AULISSync synchronize your courses into a directory which is being synchronized by one of these services.
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+### Login
+![GUI login](img/gui_login.png)
 
+### Login automation using Selenium
+![GUI login automation](img/aulis_login_automation.jpg)
+
+### List of courses after logging in (not working right now)
+![GUI logged in](img/gui_logged_in.png)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -95,7 +101,8 @@ It is easily integrateable with other synchronization services, such as [MEGA](h
 ### Built With
 
 * [Python](https://www.python.org)
-* [PySimpleGui](https://pysimplegui.readthedocs.io/en/latest/)
+* [pywebview](https://pywebview.flowrl.com/)
+* [ReactJS](https://reactjs.org/)
 * [Selenium](https://www.selenium.dev/)
 
 
@@ -146,7 +153,11 @@ This is an list of things you need to use the software.
    ```sh
    npm start
    ```
-2. Run the Python GUI application
+2. Bundle & compile JavaScript modules with Webpack
+   ```sh
+   npm run bundle
+   ```
+3. Run the Python GUI application
    ```sh
    pipenv run python src/__main__.py
    ```
@@ -166,10 +177,10 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 - [x] GUI for authentication
 - [ ] Configuration of download paths
-- [ ] Save user credentials locally
+- [x] Save user credentials locally
 - [ ] Ask the user what to sync before starting the sync process
 - [ ] Display download information
-- [ ] Modern GUI design with bootstrap buttons converted to base64 strings
+- [x] Modernize GUI
 
 
 See the [open issues](https://github.com/flosommerfeld/IliasSync/issues) for a full list of proposed features (and known issues).

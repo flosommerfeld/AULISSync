@@ -1,8 +1,11 @@
-import globals
-from gui import gui_loop
+import webview
+from gui.api import get_entrypoint, Api
+
 
 if __name__ == '__main__':
-    # loads the saved data and makes it globally available -> User data
-    globals.load_saved_data()
+    # instantiate api for the frontend
+    api = Api()
+    
     # start the gui window loop
-    gui_loop()
+    webview.create_window("AulisSync", get_entrypoint(), js_api=api)
+    webview.start(debug=True)

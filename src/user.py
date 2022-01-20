@@ -26,6 +26,7 @@ class User:
     synced_elements: Optional[list[SyncElement]] = None
     # The last time the user has synchronized his AULIS courses
     last_sync_action: datetime = None
+    logged_in: bool = False
 
     def update_credentials(self, username, password):
         """ Updates the credentials of the user. Arguments are optional. """
@@ -47,8 +48,10 @@ class User:
         try:
             _wrapper.login(username=self.username, password=self.password_hash)
         except:
+            self.logged_in = False
             return False
         else:
+            self.logged_in = True
             return True
     
     # TODO sync options -> only sync specific courses etc. 
@@ -65,3 +68,7 @@ class User:
             print(e.__traceback__)
         finally:
             return self.synced_elements
+    
+    def get_courses(self) -> list[SyncElement]:
+        # TODO maybe set the syncedelements as well?
+        return _wrapper.get_list_of_courses()

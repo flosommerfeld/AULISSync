@@ -1,15 +1,25 @@
 {
   "name": "iliassync",
   "version": "1.0.0",
+  "main": "src/gui/index.jsx",
   "description": "IliasSync synchronizes your ILIAS courses to the local hard drive.",
   "dependencies": {
+    "@emotion/react": "^11.6.0",
+    "@emotion/styled": "^11.6.0",
+    "@mui/icons-material": "^5.1.1",
+    "@mui/material": "^5.1.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router": "^6.0.2",
+    "react-router-dom": "^6.0.2",
     "selenium-standalone": "^8.0.4"
   },
-  "devDependencies": {},
   "scripts": {
     "postinstall": "npx selenium-standalone install",
     "start": "npx selenium-standalone start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "./node_modules/.bin/webpack",
+    "dev": "webpack-dev-server --mode=development"
   },
   "repository": {
     "type": "git",
@@ -20,5 +30,21 @@
   "bugs": {
     "url": "https://github.com/flosommerfeld/IliasSync/issues"
   },
-  "homepage": "https://github.com/flosommerfeld/IliasSync#readme"
+  "homepage": "https://github.com/flosommerfeld/IliasSync#readme",
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "@babel/preset-react": "^7.16.0",
+    "babel-loader": "^8.2.3",
+    "copy-webpack-plugin": "^10.0.0",
+    "css-loader": "^6.5.1",
+    "file-loader": "^6.2.0",
+    "json-loader": "^0.5.7",
+    "react-hot-loader": "^4.13.0",
+    "style-loader": "^3.3.1",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.64.1",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.5.0"
+  }
 }

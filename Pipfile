@@ -5,12 +5,13 @@ name = "pypi"
 
 [packages]
 selenium = "*"
-pysimplegui = "*"
 pystray = "*"
 pillow = "*"
-psgtray = "*"
 requests = "*"
 python-slugify = "*"
+"pywebview[qt]" = {version = "*", markers="sys_platform == 'linux' or sys_platform == 'darwin'"}
+"pywebview[cef]" = {version = "*", markers="sys_platform == 'win32'"}
+pythonnet = {version = "*", markers="sys_platform == 'win32'"}
 
 [dev-packages]
 
