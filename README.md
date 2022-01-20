@@ -85,8 +85,14 @@ files locally. It was pretty annoying to always visit the AULIS website, type in
 
 It is easily integrateable with other synchronization services, such as [MEGA](https://mega.nz/sync), [Google Drive](https://www.google.com/intl/de/drive/download/), [Dropbox](https://www.dropbox.com/de/), [Microsoft OneDrive](https://onedrive.live.com/about/): just make AULISSync synchronize your courses into a directory which is being synchronized by one of these services.
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+### Login
+![GUI login](img/gui_login.png)
 
+### Login automation using Selenium
+![GUI login automation](img/aulis_login_automation.jpg)
+
+### List of courses after logging in (not working right now)
+![GUI logged in](img/gui_logged_in.png)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
